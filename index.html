@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8 />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Örnek</title>
+</head>
+<body>
+<h4>Google Firebase Bildirim Sistemi</h4>
+<div class="token-div"></div>
+
+<script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-messaging.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script>
+
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey           : "",
+        authDomain       : "",
+        projectId        : "",
+        storageBucket    : "",
+        messagingSenderId: "",
+        appId            : ""
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+
+
+  const messaging = firebase.messaging();
+  messaging.onMessage((payload) => 
+  {
+      var obj = jQuery.parseJSON(payload.data.message);
+      var notification = new Notification(obj.title,{
+        icon:obj.icon,
+        body:obj.body
+      });
+  });
+
+
+  function token_olustur() {
+    $(".token-div").html("İşlem yapılıyor...");
+    messaging.getToken({vapidKey: '<VALİD KEY>'}).then((currentToken) => {
+      if (currentToken) 
+      {
+          $(".token-div").html(currentToken);
+
+          $.ajax({
+            url: "/token-ekle.php",
+            method: "GET",
+            data: { "token": currentToken },
+          });
+          
+      } 
+      else 
+      {
+         $(".token-div").html("Token alınırken bir hata oluştu.");
+      }
+    }).catch((err) => {
+        $(".token-div").html("Bir hata oluştu."+ err);
+    });
+  }
+
+  token_olustur();
+</script>
+</body>
+</html>
